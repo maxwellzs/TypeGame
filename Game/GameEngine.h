@@ -74,7 +74,7 @@ namespace TypeGame {
         Q_OBJECT
     private:
         clock_t tickInterval;   // how much millisecond between two ticks
-        clock_t lastTick;       // the last executed game tick
+        clock_t lastTick = clock();       // the last executed game tick
         std::shared_ptr<GameLogics> tickGenerator;
 
         std::shared_ptr<std::thread> ioWorker;
@@ -92,6 +92,8 @@ namespace TypeGame {
         clock_t remoteLastTickTime; // the last time the remote client sent packet
         GameTick remoteLastTick;
         size_t remoteCounter = 0;
+        double lastReceiveRate = 0.0;
+        size_t localFrameCounter = 0;
 
         void engineLoop();
 

@@ -115,12 +115,10 @@ void TypeGame::TypeGameMainWindow::onEnterSinglePlayer() {
     close();
     single = new SinglePlayerWindow();
     single->show();
-
     QObject::connect(&engine,&GameEngine::localGameTick,single,&SinglePlayerWindow::onReceiveFrame);
     QObject::connect(&engine,&GameEngine::engineState,single,&SinglePlayerWindow::onReceiveStatics);
-    engine.setEngineState(LOCAL);
     QObject::connect(single,&SinglePlayerWindow::onPlayerKeyPressed,&engine,&GameEngine::onPlayerKeyPressed);
-
+    engine.setEngineState(LOCAL);
 }
 
 

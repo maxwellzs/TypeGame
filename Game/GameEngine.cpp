@@ -28,6 +28,11 @@ void TypeGame::GameEngine::detachEngine() {
 
 void TypeGame::GameEngine::engineLoop() {
     std::cout << "game engine logic thread begin" << std::endl;
+
+    double frameInterval;
+    double frameRate = 0.0;
+    double frameRecv;
+
     while(!stopped) {
         clock_t now,passed;
         //idle
@@ -43,11 +48,24 @@ void TypeGame::GameEngine::engineLoop() {
                     // reached next tick
                     GameTick t = (tickGenerator.get() ? tickGenerator->generateTick(passed) : GameTick());
                     emit localGameTick(t);
-                    emit engineState(GameState{1000/(double)passed,0});
                     // send tick to remote
                     // std::static_pointer_cast<IntervalTickSendHandler>(sendInterval)->registerTick(t);
                     lastTick = now;
                 }
+
+                localFrameCounter += passed;
+
+                if(localFrameCounter > 500) {
+                    localFrameCounter += passed;
+                    // calculate game data
+                    frameInterval = passed;
+                    frameRate = 1000/frameInterval;
+                    // calculate every 1s
+                    localFrameCounter = 0;
+                    emit engineState(GameState{frameRate,0.0});
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds (1));
                 break;
             case ESTABLISHED:
 
@@ -61,6 +79,7 @@ void TypeGame::GameEngine::engineLoop() {
                     std::static_pointer_cast<IntervalTickSendHandler>(sendInterval)->registerTick(t);
                     lastTick = now;
                 }
+                localFrameCounter += passed;
 
                 emit remoteGameTick(remoteLastTick);
                 if(now - remoteLastTickTime >= TIME_OUT_VAL) {
@@ -68,10 +87,16 @@ void TypeGame::GameEngine::engineLoop() {
                     return;
                 }
                 // calculate game data
-                double frameInterval = passed;
-                double frameRate = 1000/passed;
-                double pkgReceived = remoteCounter;
-                double frameRecv = frameRate * pkgReceived;
+                frameInterval = passed;
+                frameRate = 1000/frameInterval;
+                frameRecv = lastReceiveRate;
+                if(localFrameCounter > 500) {
+                    // calculate every 1s
+                    frameRecv = remoteCounter * 2.0;
+                    lastReceiveRate = frameRecv;
+                    remoteCounter = 0; // clear remote counter
+                    localFrameCounter = 0;
+                }
                 emit engineState(GameState{frameRate,frameRecv});
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (1));

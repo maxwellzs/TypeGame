@@ -50,7 +50,7 @@ void TypeGame::GameWindow::setUpFrame() {
     scoreBoardRemote->setFont(QFont("黑体",12));
 
     gameState = new QLabel(this);
-    gameState->setGeometry(300,1000,500,100);
+    gameState->setGeometry(300,1000,700,100);
     gameState->setFont(QFont("黑体",15));
     gameState->setStyleSheet("border-width: 3px;border-style: solid;border-color: black;color: black;background-color: white;");
 

@@ -35,6 +35,7 @@ size_t TypeGame::TypeGameLogics::getCharIndex(char c) {
 }
 
 char TypeGame::TypeGameLogics::generateChar() {
+    std::srand(time(nullptr));
     int val = std::rand();
     return 'A' + (val % ('Z' - 'A'));
 }
